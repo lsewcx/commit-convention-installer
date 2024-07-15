@@ -1,7 +1,6 @@
 import subprocess
 import json
 import logging
-import os
 from rich.console import Console
 
 __VERSION__=(0,0,0)
