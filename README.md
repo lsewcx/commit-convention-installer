@@ -15,7 +15,7 @@
 1. **克隆仓库**
 
    ```bash
-   git clone https://github.com/your-repository/commit-convention-installer.git
+   git clone https://github.com/lsewcx/commit-convention-installer.git
 2. **进行提交**
     使用 git cz 启动交互式提交界面。或者直接使用 git commit -m "你的提交信息"，提交信息需要符合预设的规范。
 ## 提交规范
