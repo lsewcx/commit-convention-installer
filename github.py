@@ -191,6 +191,7 @@ def install_dependencies(package_manager):
 
 
 if __name__ == '__main__':
+    console.print(f"版本: [bold magenta]{__VERSION__}[/bold magenta], 作者: [bold cyan]{__AUTHOR__}[/bold cyan]")
     managers = check_package_managers()
     for manager, installed in managers.items():
       if installed:
