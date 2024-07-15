@@ -1,9 +1,8 @@
 # Commit Convention Installer
 
 这是一个一键运行的脚本，旨在自动生成规范化的 GitHub Commit 消息。
-<blockquote style="background-color: #ffcccc; border-left: 3px solid #ff0000; padding: 0.5em 10px;">
-  <strong>警告：</strong>你的电脑里必须要npm or pnpm才能运行
-</blockquote>
+> [!IMPORTANT]
+> 你的电脑里面必须有npm or pnpm 才能运行
 
 ## 特性
 
@@ -41,7 +40,7 @@
 - **Pull Request**：提交您的代码更改
 
 ## TODO
-- **python代码打包**
+- [ ] **python代码打包**
 
 ## 许可证
 
