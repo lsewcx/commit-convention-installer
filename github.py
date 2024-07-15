@@ -179,13 +179,16 @@ def install_dependencies(package_manager):
     if package_manager == "pnpm":
         run_command('pnpm add --save-dev husky', 'husky 安装成功', 'husky 安装失败')
         run_command('pnpm exec husky init','husky init成功','husky init失败')
-        command = 'echo "pnpm dlx commitlint --edit \\$1" > .husky/pre-commit'
+        command = 'echo "pnpm dlx commitlint --edit \\$1" > .husky/commit-msg'
         run_command(command, "pnpm pre-commit 钩子设置成功", "pnpm pre-commit 钩子设置失败")
     elif package_manager == "npm":
         run_command('npm install --save-dev husky', 'husky 安装成功', 'husky 安装失败')
         run_command('npx husky init', 'husky init成功', 'husky init失败')
-        command = 'echo "npx --no -- commitlint --edit \\$1" > .husky/pre-commit'
+        command = 'echo "npx --no -- commitlint --edit \\$1" > .husky/commit-msg'
         run_command(command, "npm pre-commit 钩子设置成功", "npm pre-commit 钩子设置失败")
+    with open('.husky/pre-commit', 'w') as file:
+      file.write('')
+    
 
 
 if __name__ == '__main__':
