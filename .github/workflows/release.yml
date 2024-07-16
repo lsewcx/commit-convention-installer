@@ -32,11 +32,11 @@ jobs:
         path: dist  # 根据实际路径修改
 
   build-windows:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: JackMcKew/pyinstaller-action-windows@main
       with:
         python-version: 3.9
     - name: Install dependencies
@@ -47,7 +47,7 @@ jobs:
         pip install pyinstaller
     - name: Build with PyInstaller (Windows)
       run: |
-        pyinstaller --onefile --windowed  github.py
+        pyinstaller --onefile github.py
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
