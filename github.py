@@ -87,6 +87,7 @@ module.exports = {
     { value: 'revert', name: 'revert:   回滚 commit' },
   ],
   scopes: [
+    ['new', '新增功能'],
     ['components', '组件相关'],
     ['hooks', 'hook 相关'],
     ['hoc', 'HOC'],
@@ -96,6 +97,16 @@ module.exports = {
     ['deps', '项目依赖'],
     ['auth', '对 auth 修改'],
     ['other', '其他修改'],
+    ['doc', '文档修改'],
+    ['test', '测试用例'],
+    ['build', '构建过程'],
+    ['release', '发布版本'],
+    ['workflow', '工作流相关'],
+    ['ci', '持续集成'],
+    ['types', '类型定义文件更改'],
+    ['lint', '代码风格'],
+    ['i18n', '国际化'],
+    ['revert', '回退'],
     ['custom', '以上都不是？我要自定义'],
   ].map(([value, description]) => {
     return {
