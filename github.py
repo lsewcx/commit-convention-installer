@@ -4,59 +4,55 @@ import logging
 from rich.console import Console
 import platform
 
-__VERSION__=(0,0,0)
-__AUTHOR__='liushien'
+__VERSION__ = (0, 0, 0)
+__AUTHOR__ = 'liushien'
 
-# 创建Rich的Console实例
 console = Console()
-
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger(__name__)
 
-def check_package_managers():
-    managers = {
-        'npm': False,
-        'pnpm': False
-    }
+PACKAGE_MANAGERS = {
+    'Windows': {'npm': 'npm.cmd', 'pnpm': 'pnpm.cmd'},
+    'default': {'npm': 'npm', 'pnpm': 'pnpm'}
+}
 
-    # 在 Windows 中使用 'npm.cmd' 和 'pnpm.cmd'
-    if platform.system() == 'Windows':
-        managers = {
-            'npm.cmd': False,
-            'pnpm.cmd': False
-        }
+def check_package_manager_installed(manager):
+    cmd = PACKAGE_MANAGERS.get(platform.system(), PACKAGE_MANAGERS['default']).get(manager, manager)
+    try:
+        subprocess.run([cmd, '--version'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        console.print(f"[red]{cmd} 未安装或找不到路径[/red]")
+        return False
 
-    for manager in managers:
-        try:
-            # 尝试查找包管理器并检查版本
-            subprocess.run([manager, '--version'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            managers[manager] = True
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            # 如果发生错误，打印错误消息并继续
-            console.print(f"[red]{manager} 未安装或找不到路径[/red]")
-            continue
-
-    return managers
-
-
-def add_config_to_package_json():
+def modify_package_json():
     console.log("[bold green]开始读取并修改package.json文件[/bold green]")
-    # 读取package.json文件
-    with open('package.json', 'r') as file:
-        data = json.load(file)
-    
-    # 添加或更新config部分
-    data['config'] = {
-        "commitizen": {
-            "path": "node_modules/cz-customizable"
-        }
-    }
+    try:
+        with open('package.json', 'r') as file:
+            data = json.load(file)
+        data['config'] = {"commitizen": {"path": "node_modules/cz-customizable"}}
+        with open('package.json', 'w') as file:
+            json.dump(data, file, indent=4)
+        console.log("[bold green]package.json文件更新完成[/bold green]")
+    except Exception as e:
+        LOG.error(f"修改package.json时出错: {e}")
 
+def run_command(command, success_message, failure_message):
+    try:
+        subprocess.run(command, check=True, shell=True)
+        console.print(success_message, style="green")
+    except subprocess.CalledProcessError:
+        console.print(failure_message, style="red")
+
+def install_dependencies_and_setup_hooks(package_manager):
+    dependencies = "commitizen cz-customizable conventional-changelog-cli --save-dev"
+    husky_init_command = f"{package_manager} exec husky init" if package_manager != "npm" else "npx husky init"
+    commit_msg_hook_command = f'echo "npx --no -- commitlint --edit $1" > .husky/commit-msg'
     
-    # 写回修改后的数据到package.json
-    with open('package.json', 'w') as file:
-        json.dump(data, file, indent=4)
-    console.log("[bold green]package.json文件更新完成[/bold green]")
+    run_command(f"{package_manager} add {dependencies}", f"{dependencies} 安装成功", f"{dependencies} 安装失败")
+    run_command('npm install --save-dev husky', 'husky 安装成功', 'husky 安装失败')
+    run_command(husky_init_command, 'husky init成功', 'husky init失败')
+    run_command(commit_msg_hook_command, "pre-commit 钩子设置成功", "pre-commit 钩子设置失败")
 
 def create_cz_config_js():
     console.log("[bold green]开始创建.cz-config.js文件[/bold green]")
@@ -174,53 +170,26 @@ module.exports = {
     with open('commitlint.config.js', 'w') as file:
         file.write(config_content)
     console.log("[bold green]commitlint.config.js文件创建完成[/bold green]")
-
-def install_dependencies(package_manager):
-    console = Console()
-
-    # 定义一个辅助函数来运行命令并打印结果
-    def run_command(command, success_message, failure_message):
-        try:
-            subprocess.run(command, check=True,shell=True)
-            console.print(success_message, style="green")
-        except subprocess.CalledProcessError:
-            console.print(failure_message, style="red")
-
-    # 安装commitizen和commitlint
-    run_command(package_manager + " install cz-customizable --save-dev", "cz-customizable 安装成功", "cz-customizable 安装失败")
-    run_command(package_manager + " install --save-dev @commitlint/cli @commitlint/config-conventional", "@commitlint/cli 和 @commitlint/config-conventional 安装成功", "@commitlint/cli 和 @commitlint/config-conventional 安装失败")
-  
-    
-    # 根据包管理器设置husky pre-commit钩子
-    if package_manager == "pnpm":
-        run_command('pnpm add --save-dev husky', 'husky 安装成功', 'husky 安装失败')
-        run_command('pnpm exec husky init','husky init成功','husky init失败')
-        command = 'echo "pnpm dlx commitlint --edit \\$1" > .husky/commit-msg'
-        run_command(command, "pnpm pre-commit 钩子设置成功", "pnpm pre-commit 钩子设置失败")
-    elif package_manager == "npm":
-        run_command('npm install --save-dev husky', 'husky 安装成功', 'husky 安装失败')
-        run_command('npx husky init', 'husky init成功', 'husky init失败')
-        command = 'echo "npx --no -- commitlint --edit \\$1" > .husky/commit-msg'
-        run_command(command, "npm pre-commit 钩子设置成功", "npm pre-commit 钩子设置失败")
-    with open('.husky/pre-commit', 'w') as file:
-      file.write('')
-    
-
+def clear_pre_commit_hook():
+    try:
+        # 打开文件并清空内容
+        with open('.husky/pre-commit', 'w') as file:
+            file.write('')  # 写入空字符串以清空文件
+        console.log("[bold green].husky/pre-commit 文件内容已清空[/bold green]")
+    except Exception as e:
+        LOG.error(f"清空 .husky/pre-commit 文件时出错: {e}")
+def main():
+    console.print(f"版本: [bold magenta]{__VERSION__}[/bold magenta], 作者: [bold cyan]{__AUTHOR__}[/bold cyan]")
+    package_manager = console.input('[bold green]选择你使用的包管理器(npm/pnpm): [/bold green]')
+    if check_package_manager_installed(package_manager):
+        install_dependencies_and_setup_hooks(package_manager)
+        modify_package_json()
+        write_commitlint_config()
+        create_cz_config_js()
+        clear_pre_commit_hook()
+        console.log("[bold green]脚本执行结束[/bold green]")
+    else:
+        LOG.error('输入错误或包管理器未安装')
 
 if __name__ == '__main__':
-    console.print(f"版本: [bold magenta]{__VERSION__}[/bold magenta], 作者: [bold cyan]{__AUTHOR__}[/bold cyan]")
-    managers = check_package_managers()
-    for manager, installed in managers.items():
-      if installed:
-          console.print(f"[green]{manager} 已安装[/green]")
-      else:
-          console.print(f"[red]{manager} 未安装[/red]")
-    package = console.input('[bold green]选择你使用的包管理器(npm/pnpm): [/bold green]')
-    if package in ['npm', 'pnpm']:
-        install_dependencies(package)
-    else:
-        LOG.error('输入错误')
-    add_config_to_package_json()
-    create_cz_config_js()
-    write_commitlint_config()
-    console.log("[bold green]脚本执行结束[/bold green]")
+    main()
