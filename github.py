@@ -2,6 +2,7 @@ import subprocess
 import json
 import logging
 from rich.console import Console
+import platform
 
 __VERSION__=(0,0,0)
 __AUTHOR__='liushien'
@@ -17,19 +18,24 @@ def check_package_managers():
         'npm': False,
         'pnpm': False
     }
-    
-    try:
-        subprocess.run(['npm', '--version'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        managers['npm'] = True
-    except subprocess.CalledProcessError:
-        pass
-    
-    try:
-        subprocess.run(['pnpm', '--version'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        managers['pnpm'] = True
-    except subprocess.CalledProcessError:
-        pass
-    
+
+    # 在 Windows 中使用 'npm.cmd' 和 'pnpm.cmd'
+    if platform.system() == 'Windows':
+        managers = {
+            'npm.cmd': False,
+            'pnpm.cmd': False
+        }
+
+    for manager in managers:
+        try:
+            # 尝试查找包管理器并检查版本
+            subprocess.run([manager, '--version'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            managers[manager] = True
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            # 如果发生错误，打印错误消息并继续
+            console.print(f"[red]{manager} 未安装或找不到路径[/red]")
+            continue
+
     return managers
 
 
@@ -181,7 +187,7 @@ def install_dependencies(package_manager):
             console.print(failure_message, style="red")
 
     # 安装commitizen和commitlint
-    run_command(package_manager + " install cz-customizable", "cz-customizable 安装成功", "cz-customizable 安装失败")
+    run_command(package_manager + " install cz-customizable --save-dev", "cz-customizable 安装成功", "cz-customizable 安装失败")
     run_command(package_manager + " install --save-dev @commitlint/cli @commitlint/config-conventional", "@commitlint/cli 和 @commitlint/config-conventional 安装成功", "@commitlint/cli 和 @commitlint/config-conventional 安装失败")
   
     
@@ -218,4 +224,3 @@ if __name__ == '__main__':
     create_cz_config_js()
     write_commitlint_config()
     console.log("[bold green]脚本执行结束[/bold green]")
-
