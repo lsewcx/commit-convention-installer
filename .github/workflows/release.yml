@@ -3,11 +3,13 @@ name: Build Application
 on:
     push:
       branches:
-        - build  # 指定触发工作流的分支名称
+        - main  # 指定触发工作流的分支名称
 
 jobs:
   build-macos:
     runs-on: macOS-latest
+    env:
+      ARCHFLAGS: "-arch x86_64"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
