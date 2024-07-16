@@ -20,12 +20,7 @@ module.exports = {
         'mod', // 不确定分类的修改
         'wip', // 开发中
         'types', // 类型修改
-        'release',// 版本发布
-        'deps', // 依赖更新
-        'auth', // 授权相关
-        'lint', // 代码风格
-        'i18n', // 国际化
-        'other' // 其他修改
+        'release' // 版本发布
       ]
     ],
     'subject-full-stop': [0, 'never'],

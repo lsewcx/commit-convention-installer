@@ -29,6 +29,11 @@ module.exports = {
       name: 'chore:    对构建过程或辅助工具和库的更改,不影响源文件、测试用例的其他操作',
     },
     { value: 'revert', name: 'revert:   回滚 commit' },
+    {value:'workflow',name:'workflow: 工作流程变动'},
+    {value:'mod',name:'mod:      不确定分类的修改'},
+    {value:'wip',name:'wip:      开发中'},
+    {value:'types',name:'types:    类型修改'},
+    {value:'release',name:'release:  版本发布'},
   ],
   scopes: [
     ['new', '新增功能'],

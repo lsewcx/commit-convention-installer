@@ -3,7 +3,7 @@ name: Build Application
 on:
     push:
       branches:
-        - main  # 指定触发工作流的分支名称
+        - build  # 指定触发工作流的分支名称
 
 jobs:
   build-macos:
