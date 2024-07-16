@@ -1,6 +1,9 @@
 name: Build Application
 
-on: [push, pull_request]
+on:
+    push:
+      branches:
+        - build  # 指定触发工作流的分支名称
 
 jobs:
   build-macos:
@@ -24,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: macOS-Build
-        path: dist/github  # 根据实际路径修改
+        path: dist  # 根据实际路径修改
 
   build-windows:
     runs-on: windows-latest
