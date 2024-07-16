@@ -5,8 +5,15 @@ from rich.console import Console
 import platform
 import sys  # 导入sys模块以支持退出功能
 
-__VERSION__ = (0, 0, 0)
+
 __AUTHOR__ = 'liushien'
+
+class __VERSION__:
+    def __init__(self) -> None:
+        self.__version = (0, 0, 0)
+    
+    def __str__(self):
+        return 'v'+'.'.join(map(str, self.__version))
 
 console = Console()
 logging.basicConfig(level=logging.INFO)
@@ -190,7 +197,7 @@ def clear_pre_commit_hook():
     except Exception as e:
         LOG.error(f"清空 .husky/pre-commit 文件时出错: {e}")
 def main():
-    console.print(f"版本: [bold magenta]{__VERSION__}[/bold magenta], 作者: [bold cyan]{__AUTHOR__}[/bold cyan]")
+    console.print(f"版本: [bold magenta]{__VERSION__()}[/bold magenta], 作者: [bold cyan]{__AUTHOR__}[/bold cyan]")
     package_manager = console.input('[bold green]选择你使用的包管理器(npm/pnpm): [/bold green]')
     if check_package_manager_installed(package_manager):
         install_dependencies_and_setup_hooks(package_manager)
