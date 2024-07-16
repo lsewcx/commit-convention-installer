@@ -50,7 +50,10 @@ def install_dependencies_and_setup_hooks(package_manager):
     commit_msg_hook_command = f'echo "npx --no -- commitlint --edit $1" > .husky/commit-msg'
     
     run_command(f"{package_manager} add {dependencies}", f"{dependencies} 安装成功", f"{dependencies} 安装失败")
-    run_command('npm install --save-dev husky', 'husky 安装成功', 'husky 安装失败')
+    if(package_manager == "pnpm"):
+        run_command('pnpm add --save-dev husky', 'husky 安装成功', 'husky 安装失败')
+    else:
+      run_command('npm install --save-dev husky', 'husky 安装成功', 'husky 安装失败')
     run_command(husky_init_command, 'husky init成功', 'husky init失败')
     run_command(commit_msg_hook_command, "pre-commit 钩子设置成功", "pre-commit 钩子设置失败")
 
