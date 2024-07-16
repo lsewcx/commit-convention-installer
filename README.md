@@ -43,6 +43,10 @@
 - [ ] **python代码打包(Linux,MacOS,Windows)**
 - [ ] **?可视化界面**
 
+## 感谢以下开源项目
+- husky
+- cz-customizable
+
 ## 许可证
 
 本项目采用 [MIT 许可证](https://opensource.org/licenses/MIT)。您可以自由地使用、复制、修改、合并、发布、分发、再授权和/或出售此软件及其文档的副本。
