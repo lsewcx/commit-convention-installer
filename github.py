@@ -3,6 +3,7 @@ import json
 import logging
 from rich.console import Console
 import platform
+import sys  # 导入sys模块以支持退出功能
 
 __VERSION__ = (0, 0, 0)
 __AUTHOR__ = 'liushien'
@@ -196,6 +197,8 @@ def main():
         create_cz_config_js()
         clear_pre_commit_hook()
         console.log("[bold green]脚本执行结束[/bold green]")
+        console.input("[bold green]按任意键退出...[/bold green]")  # 添加等待用户输入以暂停
+        sys.exit(0)  # 正常退出程序
     else:
         LOG.error('输入错误或包管理器未安装')
 
