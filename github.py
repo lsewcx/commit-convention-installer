@@ -46,7 +46,7 @@ def run_command(command, success_message, failure_message):
         console.print(failure_message, style="red")
 
 def install_dependencies_and_setup_hooks(package_manager):
-    dependencies = "commitizen cz-customizable conventional-changelog-cli --save-dev"
+    dependencies = "commitizen cz-customizable conventional-changelog-cli cz-conventional-changelog --save-dev"
     husky_init_command = f"{package_manager} exec husky init" if package_manager != "npm" else "npx husky init"
     commit_msg_hook_command = f'echo "npx --no -- commitlint --edit $1" > .husky/commit-msg'
     
