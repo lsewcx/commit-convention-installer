@@ -15,7 +15,7 @@ class __VERSION__:
     def __str__(self):
         return 'v'+'.'.join(map(str, self.__version))
 
-console = Console()
+CONSOLE = Console()
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger(__name__)
 
@@ -25,35 +25,35 @@ PACKAGE_MANAGERS = {
 }
 SUPPORT_PLATFORM=['Windows',"Darwin"]
 
-def check_package_manager_installed(manager,os_system='default'):
+def check_package_manager_installed(manager:str,os_system='default') -> bool:
     cmd = PACKAGE_MANAGERS.get(os_system, PACKAGE_MANAGERS['default']).get(manager, manager)
     try:
         subprocess.run([cmd, '--version'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
-        console.print(f"[red]{cmd} 未安装或找不到路径[/red]")
+        CONSOLE.print(f"[red]{cmd} 未安装或找不到路径[/red]")
         return False
 
-def modify_package_json():
-    console.log("[bold green]开始读取并修改package.json文件[/bold green]")
+def modify_package_json() -> None:
+    CONSOLE.log("[bold green]开始读取并修改package.json文件[/bold green]")
     try:
         with open('package.json', 'r') as file:
             data = json.load(file)
         data['config'] = {"commitizen": {"path": "node_modules/cz-customizable"}}
         with open('package.json', 'w') as file:
             json.dump(data, file, indent=4)
-        console.log("[bold green]package.json文件更新完成[/bold green]")
+        CONSOLE.log("[bold green]package.json文件更新完成[/bold green]")
     except Exception as e:
         LOG.error(f"修改package.json时出错: {e}")
 
-def run_command(command, success_message, failure_message):
+def run_command(command:str, success_message:str, failure_message:str) -> None:
     try:
         subprocess.run(command, check=True, shell=True)
-        console.print(success_message, style="green")
+        CONSOLE.print(success_message, style="green")
     except subprocess.CalledProcessError:
-        console.print(failure_message, style="red")
+        CONSOLE.print(failure_message, style="red")
 
-def install_dependencies_and_setup_hooks(package_manager):
+def install_dependencies_and_setup_hooks(package_manager:str) -> None:
     dependencies = "commitizen cz-customizable conventional-changelog-cli cz-conventional-changelog --save-dev"
     husky_init_command = f"{package_manager} exec husky init" if package_manager != "npm" else "npx husky init"
     commit_msg_hook_command = f'echo "npx --no -- commitlint --edit $1" > .husky/commit-msg'
@@ -66,9 +66,11 @@ def install_dependencies_and_setup_hooks(package_manager):
     run_command(husky_init_command, 'husky init成功', 'husky init失败')
     run_command(commit_msg_hook_command, "pre-commit 钩子设置成功", "pre-commit 钩子设置失败")
 
-def create_cz_config_js():
-    console.log("[bold green]开始创建.cz-config.js文件[/bold green]")
+def create_cz_config_js() ->None:
+    CONSOLE.log("[bold green]开始创建.cz-config.js文件[/bold green]")
     config_content = """
+
+
 
 module.exports = {
   // type 类型
@@ -135,25 +137,26 @@ module.exports = {
     };
   }),
   messages: {
-    type: "请确保你的提交遵循了原子提交规范！\n选择你要提交的类型:",
-    scope: '\n选择一个 scope (可选):',
+    type: "请确保你的提交遵循了原子提交规范！选择你要提交的类型:",
+    scope: '选择一个 scope (可选):',
     customScope: '请输入自定义的 scope:',
-    subject: '填写一个简短精炼的描述语句:\n',
-    body: '添加一个更加详细的描述，可以附上新增功能的描述或 bug 链接、截图链接 (可选)。使用 "|" 换行:\n',
-    breaking: '列举非兼容性重大的变更 (可选):\n',
-    footer: '列举出所有变更的 ISSUES CLOSED  (可选)。 例如.: #31, #34:\n',
+    subject: '填写一个简短精炼的描述语句:',
+    body: '添加一个更加详细的描述，可以附上新增功能的描述或 bug 链接、截图链接 (可选)。使用 "|" 换行:',
+    breaking: '列举非兼容性重大的变更 (可选):',
+    footer: '列举出所有变更的 ISSUES CLOSED  (可选)。 例如.: #31, #34:',
     confirmCommit: '确认提交?',
   },
   allowBreakingChanges: ['feat', 'fix'],
   subjectLimit: 100,
 };
+
 """
     with open('.cz-config.js', 'w') as file:
         file.write(config_content)
-    console.log("[bold green].cz-config.js文件创建完成[/bold green]")
+    CONSOLE.log("[bold green].cz-config.js文件创建完成[/bold green]")
 
-def write_commitlint_config():
-    console.log("[bold green]开始创建commitlint.config.js文件[/bold green]")
+def write_commitlint_config() -> None:
+    CONSOLE.log("[bold green]开始创建commitlint.config.js文件[/bold green]")
     config_content = """
 
 module.exports = {
@@ -188,33 +191,36 @@ module.exports = {
 
     with open('commitlint.config.js', 'w') as file:
         file.write(config_content)
-    console.log("[bold green]commitlint.config.js文件创建完成[/bold green]")
-def clear_pre_commit_hook():
+    CONSOLE.log("[bold green]commitlint.config.js文件创建完成[/bold green]")
+
+def clear_pre_commit_hook() -> None:
     try:
         # 打开文件并清空内容
         with open('.husky/pre-commit', 'w') as file:
             file.write('')  # 写入空字符串以清空文件
-        console.log("[bold green].husky/pre-commit 文件内容已清空[/bold green]")
+        CONSOLE.log("[bold green].husky/pre-commit 文件内容已清空[/bold green]")
     except Exception as e:
-        LOG.error(f"清空 .husky/pre-commit 文件时出错: {e}")
+        LOG.error(f"清空 .husky/pre-commit 文件时出错:")
+        CONSOLE.print(f"[red]{e}[/red]")
+
 def main():
     if platform.system() not in SUPPORT_PLATFORM:
-        console.print("[red]不支持的操作系统[/red]")
-        console.print("不清楚是否支持你的操作系统？可以尝试运行脚本")
+        CONSOLE.print("[red]不支持的操作系统[/red]")
+        CONSOLE.print("不清楚是否支持你的操作系统？可以尝试运行脚本")
         system='default'
     else:
         system=platform.system()
-    console.print(f"检测到你的操作系统为[bold green]{system}[/bold green]")
-    console.print(f"版本: [bold magenta]{__VERSION__()}[/bold magenta], 作者: [bold cyan]{__AUTHOR__}[/bold cyan]")
-    package_manager = console.input('[bold green]选择你使用的包管理器(npm/pnpm): [/bold green]')
+    CONSOLE.print(f"检测到你的操作系统为[bold green]{system}[/bold green]")
+    CONSOLE.print(f"版本: [bold magenta]{__VERSION__()}[/bold magenta], 作者: [bold cyan]{__AUTHOR__}[/bold cyan]")
+    package_manager = CONSOLE.input('[bold green]选择你使用的包管理器(npm/pnpm): [/bold green]')
     if check_package_manager_installed(package_manager,os_system=system):
         install_dependencies_and_setup_hooks(package_manager)
         modify_package_json()
         write_commitlint_config()
         create_cz_config_js()
         clear_pre_commit_hook()
-        console.log("[bold green]脚本执行结束[/bold green]")
-        console.input("[bold green]按任意键退出...[/bold green]")  # 添加等待用户输入以暂停
+        CONSOLE.log("[bold green]脚本执行结束[/bold green]")
+        CONSOLE.input("[bold green]按任意键退出...[/bold green]")  # 添加等待用户输入以暂停
         sys.exit(0)  # 正常退出程序
     else:
         LOG.error('输入错误或包管理器未安装')
