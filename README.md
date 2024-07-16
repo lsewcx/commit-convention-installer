@@ -40,7 +40,8 @@
 - **Pull Request**：提交您的代码更改
 
 ## TODO
-- [ ] **python代码打包**
+- [ ] **python代码打包(Linux,MacOS,Windows)**
+- [ ] **?可视化界面**
 
 ## 许可证
 
