@@ -23,9 +23,10 @@ PACKAGE_MANAGERS = {
     'Windows': {'npm': 'npm.cmd', 'pnpm': 'pnpm.cmd'},
     'default': {'npm': 'npm', 'pnpm': 'pnpm'}
 }
+SUPPORT_PLATFORM=['Windows',"Darwin"]
 
-def check_package_manager_installed(manager):
-    cmd = PACKAGE_MANAGERS.get(platform.system(), PACKAGE_MANAGERS['default']).get(manager, manager)
+def check_package_manager_installed(manager,os_system='default'):
+    cmd = PACKAGE_MANAGERS.get(os_system, PACKAGE_MANAGERS['default']).get(manager, manager)
     try:
         subprocess.run([cmd, '--version'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return True
@@ -197,9 +198,16 @@ def clear_pre_commit_hook():
     except Exception as e:
         LOG.error(f"清空 .husky/pre-commit 文件时出错: {e}")
 def main():
+    if platform.system() not in SUPPORT_PLATFORM:
+        console.print("[red]不支持的操作系统[/red]")
+        console.print("不清楚是否支持你的操作系统？可以尝试运行脚本")
+        system='default'
+    else:
+        system=platform.system()
+    console.print(f"检测到你的操作系统为[bold green]{system}[/bold green]")
     console.print(f"版本: [bold magenta]{__VERSION__()}[/bold magenta], 作者: [bold cyan]{__AUTHOR__}[/bold cyan]")
     package_manager = console.input('[bold green]选择你使用的包管理器(npm/pnpm): [/bold green]')
-    if check_package_manager_installed(package_manager):
+    if check_package_manager_installed(package_manager,os_system=system):
         install_dependencies_and_setup_hooks(package_manager)
         modify_package_json()
         write_commitlint_config()
