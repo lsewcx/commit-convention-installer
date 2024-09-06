@@ -44,6 +44,10 @@ def modify_package_json() -> None:
         CONSOLE.log("[bold green]package.json文件更新完成[/bold green]")
     except Exception as e:
         LOG.error(f"修改package.json时出错: {e}")
+        config_content = "..."  # 这里填写你的config_content
+        with open('.cz-config.js', 'w', encoding='utf-8') as file:  # 指定编码为utf-8
+            file.write(config_content)
+        CONSOLE.log("[bold green].cz-config.js文件创建完成[/bold green]")
 
 def run_command(command:str, success_message:str, failure_message:str) -> None:
     try:
@@ -60,8 +64,10 @@ def install_dependencies_and_setup_hooks(package_manager:str) -> None:
     run_command(f"{package_manager} add {dependencies}", f"{dependencies} 安装成功", f"{dependencies} 安装失败")
     if(package_manager == "pnpm"):
         run_command('pnpm add --save-dev husky', 'husky 安装成功', 'husky 安装失败')
+        run_command('pnpm add --save-dev @commitlint/config-conventional', '@commitlint/config-conventional 安装成功', '@commitlint/config-conventional 安装失败')
     else:
       run_command('npm install --save-dev husky', 'husky 安装成功', 'husky 安装失败')
+      run_command('npm install --save-dev @commitlint/config-conventional', '@commitlint/config-conventional 安装成功', '@commitlint/config-conventional 安装失败')
     run_command(husky_init_command, 'husky init成功', 'husky init失败')
     run_command(commit_msg_hook_command, "pre-commit 钩子设置成功", "pre-commit 钩子设置失败")
 
@@ -146,9 +152,16 @@ module.exports = {
     subjectLimit: 100,
   };
     """
-    with open('.cz-config.js', 'w') as file:
-        file.write(config_content)
-    CONSOLE.log("[bold green].cz-config.js文件创建完成[/bold green]")
+    try:
+        with open('.cz-config.js', 'w') as file:
+            file.write(config_content)
+        CONSOLE.log("[bold green].cz-config.js文件创建完成[/bold green]")
+    except Exception as e:
+        LOG.error(f"创建.cz-config.js文件时出错,尝试使用utf-8写入")
+        CONSOLE.print(f"[red]{e}[/red]")
+        with open('.cz-config.js', 'w',encoding='utf-8') as file:
+            file.write(config_content)
+        CONSOLE.log("[bold green].cz-config.js文件创建完成[/bold green]")
 
 def write_commitlint_config() -> None:
     CONSOLE.log("[bold green]开始创建commitlint.config.js文件[/bold green]")
