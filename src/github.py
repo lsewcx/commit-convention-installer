@@ -59,7 +59,7 @@ def run_command(command:str, success_message:str, failure_message:str) -> None:
 def install_dependencies_and_setup_hooks(package_manager:str) -> None:
     dependencies = "commitizen cz-customizable conventional-changelog-cli cz-conventional-changelog --save-dev"
     husky_init_command = f"{package_manager} exec husky init" if package_manager != "npm" else "npx husky init"
-    commit_msg_hook_command = f'echo "npx --no -- commitlint --edit $1" > .husky/commit-msg'
+    commit_msg_hook_command = f'echo "npx --no -- commitlint --edit" > .husky/commit-msg'
     
     run_command(f"{package_manager} add {dependencies}", f"{dependencies} 安装成功", f"{dependencies} 安装失败")
     if(package_manager == "pnpm"):
